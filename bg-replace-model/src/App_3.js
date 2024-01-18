@@ -4,8 +4,8 @@ import * as tf from "@tensorflow/tfjs";
 import Webcam from "react-webcam";
 import '@tensorflow/tfjs-core';
 import '@tensorflow/tfjs-backend-webgl';
-import * as bodySegmentation from '@tensorflow-models/body-segmentation';
-import '@mediapipe/selfie_segmentation';
+import * as poseDetection from '@tensorflow-models/pose-detection';
+import '@mediapipe/pose';
 import "./camara_05.css";
 
 
@@ -57,15 +57,18 @@ function App(props) {
       const selectedModel = await props.model.model;
 
       const model = await tf.loadGraphModel(selectedModel);
-      const model_bg = bodySegmentation.SupportedModels.MediaPipeSelfieSegmentation;
+      const model_bg = poseDetection.SupportedModels.BlazePose;
       setModelLoaded(true);
 
-      const segmenterConfig = {
-        runtime: 'mediapipe', // or 'tfjs'
-        solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation',
-        modelType: 'landscape' // or 'landscape'
+      const detectorConfig = {
+        runtime: 'mediapipe',
+        enableSmoothing: true, // You can adjust this based on your needs
+        enableSegmentation: true, // Set this to true if you want segmentation
+        smoothSegmentation: true, // Adjust as needed
+        modelType: 'heavy', // Choose the appropriate model type (lite, full, heavy)
+        solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/pose',
       };
-      const segmenter = await bodySegmentation.createSegmenter(model_bg, segmenterConfig);
+      const detector = await poseDetection.createDetector(model_bg, detectorConfig);
 
       //  Loop and detect hands
 
@@ -106,39 +109,14 @@ function App(props) {
             const ctxSec = canvasRefSec.current.getContext("2d");
             const ctx2 = canvasRef2.current.getContext("2d");
 
-            // ctx.drawImage(video, x, y, width, height, 0, 0, 640, 480);
+            ctx.drawImage(video, x, y, width, height, 0, 0, 640, 480);
 
-            const segmentationConfig = { flipHorizontal: false };
-            // const people = await segmenter.segmentPeople(canvas, segmentationConfig);
+            const estimationConfig = { enableSmoothing: true };
+            const poses_bg = await detector.estimatePoses(video, estimationConfig);
+            const poses = await detector.estimatePoses(canvas, estimationConfig);
 
-            // const foregroundColor = { r: 0, g: 0, b: 0, a: 0 };
-            // const backgroundColor = { r: 255, g: 255, b: 255, a: 255 };
-            // const drawContour = true;
-            // const foregroundThreshold = 0.2;
-            // const backgroundDarkeningMask = await bodySegmentation.toBinaryMask(people, foregroundColor, backgroundColor, drawContour, foregroundThreshold);
-            // const opacity = 0.9;
-            // const maskBlurAmount = 0; // Number of pixels to blur by.
-
-            // await bodySegmentation.drawMask(canvasSec, canvas, backgroundDarkeningMask, opacity, maskBlurAmount);
-
-          //   if (people.length > 0) {
-          //     const personMask = people[0].mask;
-          //     const personMaskCanvas = await personMask.toCanvasImageSource();
-          //     ctxSec.drawImage(canvas, 0, 0, 640, 480);
-          //     ctxSec.globalCompositeOperation = 'destination-in';
-          //     ctxSec.drawImage(personMaskCanvas, 0, 0, 640, 480);
-          //     ctxSec.globalCompositeOperation = 'destination-over';
-          //     ctxSec.fillStyle = 'rgba(255, 255, 255, 0.8)';
-          //     ctxSec.fillRect(0, 0, 640, 480);
-          //     ctxSec.globalCompositeOperation = 'source-over';
-          // }
-
-            const image = document.getElementById("source");
-
-            const people_bg = await segmenter.segmentPeople(video, segmentationConfig);
-
-            if (people_bg.length > 0) {
-              const personMask_bg = people_bg[0].mask;
+            if (poses_bg.length > 0) {
+              const personMask_bg = poses_bg[0].segmentation.mask;
               const personMaskCanvas_bg = await personMask_bg.toCanvasImageSource();
 
               // Draw the person's mask on the canvas
@@ -147,30 +125,44 @@ function App(props) {
               // // Draw the person's mask on the canvas with a white color
               ctx2.globalCompositeOperation = 'destination-in';
               ctx2.drawImage(personMaskCanvas_bg, 0, 0, 640, 480);
-              // ctx2.globalCompositeOperation = 'destination-over';
-              // ctx2.drawImage(image, 0, 0, 640, 480);
               ctx2.globalCompositeOperation = 'source-over'; // Reset composite operation
-              // ctx2.drawImage(video, x, y, width, height, x, y, width, height);
 
-              // ctxSec.save();  // Save the current state of the context
-              // ctxSec.scale(-1, 1);  // Flip horizontally
-              ctxSec.drawImage(video, 0, 0, 640, 480);
-              // ctxSec.restore();
+              // ctxSec.drawImage(video, 0, 0, 640, 480);
+              // ctxSec.globalCompositeOperation = 'destination-in';
+              // ctxSec.drawImage(personMaskCanvas_bg, 0, 0, 640, 480);
+              // ctxSec.globalCompositeOperation = 'destination-over';
+              // ctxSec.fillStyle = 'rgba(255, 255, 255, 0.8)';
+              // ctxSec.fillRect(0, 0, 640, 480);
+              // ctxSec.globalCompositeOperation = 'source-over';
+
+              // ctx.drawImage(canvasSec, x, y, width, height, 0, 0, 640, 480);
+          }
+
+            const image = document.getElementById("source");
+
+            if (poses.length > 0) {
+
+              const personMask = poses[0].segmentation.mask;
+              const personMaskCanvas = await personMask.toCanvasImageSource();
+              ctxSec.drawImage(canvas, 0, 0, 640, 480);
               ctxSec.globalCompositeOperation = 'destination-in';
-              ctxSec.drawImage(personMaskCanvas_bg, 0, 0, 640, 480);
+              ctxSec.drawImage(personMaskCanvas, 0, 0, 640, 480);
               ctxSec.globalCompositeOperation = 'destination-over';
-              ctxSec.fillStyle = 'rgba(240, 240, 240, 0.7)';
-              // ctxSec.fillStyle = 'rgba(220, 230, 255, 0.8)';
-              // ctxSec.fillStyle = 'rgba(220, 255, 230, 0.8)';
-              // ctxSec.fillStyle = 'rgba(200, 255, 200, 0.8)';
+              ctxSec.fillStyle = 'rgba(255, 255, 255, 0.8)';
               ctxSec.fillRect(0, 0, 640, 480);
               ctxSec.globalCompositeOperation = 'source-over';
 
-              ctx.drawImage(canvasSec, x, y, width, height, 0, 0, 640, 480);
+              // // Draw the person's mask on the canvas
+              // ctx2.drawImage(video, 0, 0, 640, 480);
+
+              // // // Draw the person's mask on the canvas with a white color
+              // ctx2.globalCompositeOperation = 'destination-in';
+              // ctx2.drawImage(personMaskCanvas, 0, 0, 640, 480);
+              // ctx2.globalCompositeOperation = 'source-over'; // Reset composite operation
           }
 
             // Make Detections
-            const img = tf.browser.fromPixels(canvas)
+            const img = tf.browser.fromPixels(canvasSec)
             const resized = tf.image.resizeBilinear(img, [56, 56])
             const expanded = resized.expandDims(0)
             const obj = await model.execute(expanded)
@@ -230,7 +222,7 @@ function App(props) {
     if (timer > 0 && start) {
       const synth = window.speechSynthesis;
       const en = new SpeechSynthesisUtterance(labelMap[referencia]['name']);
-      en.lang = "en-US";
+      en.lang = "es-US";
       synth.speak(en);
     }
   }, [change])
@@ -246,7 +238,6 @@ function App(props) {
         className="web"
         ref={webcamRef}
         muted={true}
-        // mirrored={true}
         style={{
           visibility: "hidden",
           position: "absolute",
@@ -283,7 +274,7 @@ function App(props) {
         ref={canvasRef}
         id="canvas"
         style={{
-          visibility: "hidden",
+          display: "none",
           position: "absolute",
           marginLeft: "auto",
           marginRight: "auto",
@@ -300,7 +291,7 @@ function App(props) {
         ref={canvasRefSec}
         id="canvasSec"
         style={{
-          visibility: "hidden",
+          // display: "none",
           position: "absolute",
           marginLeft: "auto",
           marginRight: "auto",

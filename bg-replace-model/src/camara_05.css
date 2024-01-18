@@ -1,0 +1,187 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+/*He sustituido classname App por Bodyglobal05, SOLAPA CON HOME*/
+.App {
+  min-height: 100vh;
+  width: 100%;
+  /* background-color: lightsalmon; */
+  background-image: url("./jungle-1807476_640.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  border-radius: 0px;
+}
+
+.left_side {
+  width: 40%;
+  height: 85vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.left_side .left_up {
+  height: 25vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 30px;
+  gap: 10%;
+}
+
+.left_side .left_up .left_up_points {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 30px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  padding: 10px;
+  border-radius: 7px;
+  letter-spacing: 3px;
+}
+
+.left_side .left_up .left_up_mono {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* padding-top: 5%; */
+}
+
+.left_side .left_up .left_up_mono .camara_mono {
+  height: 25vh;
+  object-fit: contain;
+}
+
+.camara_mono_salta {
+  animation-duration: 1100ms;
+  animation-name: gira_salta;
+  animation-timing-function: linear;
+  animation-iteration-count: 2; 
+}
+
+@keyframes gira_salta {
+  0% {
+    transform: rotate(0deg) scale(1); 
+  }
+
+  25% {
+    transform: rotate(90deg) scale(1.4);
+  }
+
+  50% {
+    transform: rotate(180deg) scale(1.8);
+  }
+
+  75% {
+    transform: rotate(270deg) scale(1.4);
+  }
+
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+.left_side .left_center {
+  height: 55vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items:center;
+  gap: 5%;
+}
+
+.img_ejemplo {
+  height: 45vh;
+  max-width: 50%;
+  object-fit: contain;
+}
+
+.num_ejemplo {
+  height: 35vh;
+  object-fit: contain;
+}
+
+.left_start {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items:center;
+  min-height: 50vh;
+}
+
+.left_start .btn_start, .left_start .btn_exit {
+  height: fit-content;
+  font-size: 30px;
+  padding: 7px 15px;
+  border-radius: 10px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  letter-spacing: 3px;
+  font-weight: lighter;
+  cursor: pointer;
+  transition: 200ms;
+}
+
+.left_start .btn_loading {
+  font-size: 22px;
+  letter-spacing: 3px;
+  margin-bottom: 15%;
+}
+
+.left_start .btn_start:hover, .left_start .btn_exit:hover {
+  transform: scale(1.1);
+  background-color: #ffffffb1;
+  color: #000;
+  box-shadow: 10px -0px 15px #000;
+}
+
+.left_start .btn_start, .loading_div {
+  margin-bottom: 15%;
+}
+
+.loading {
+  margin-left: 30px;
+  transform: scale(1.5);
+}
+
+.right_side {
+  width: 40%;
+  height: 15vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15%;
+}
+
+.camara_exit, .camara_continue {
+  height: fit-content;
+  font-size: 30px;
+  padding: 7px 15px;
+  border-radius: 10px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  letter-spacing: 3px;
+  font-weight: lighter;
+  cursor: pointer;
+  transition: 200ms;
+}
+
+.camara_exit:hover, .camara_continue:hover {
+  transform: scale(1.1);
+  background-color: #ffffffb1;
+  color: #000;
+  box-shadow: 10px -0px 15px #000;
+}
+
+
+.camara_l_continue {
+  visibility: hidden;
+}
+
+/* .camara_extend {
+  height: 10vh;
+} */

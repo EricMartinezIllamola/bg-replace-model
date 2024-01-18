@@ -1,42 +1,19 @@
-.App {
+/* .App {
   text-align: center;
-}
+  background-color: black;
+  width: 100vw;
+  height: 100vh;
+} */
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-#source {
-  margin-top: 120vh;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
+/* .bg_image {
+  background-image: url(./jungle-1807476_640.jpg);
+  background-repeat: no-repeat;
+  position: absolute;
+  margin-left: "auto";
+  margin-right: "auto";
+  top: 16%;
+  left: 3%;
+  z-index: 999;
+  width: 640px;
+  height: 480px;
+} */

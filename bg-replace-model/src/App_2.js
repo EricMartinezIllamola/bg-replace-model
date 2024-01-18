@@ -1,21 +1,25 @@
 import React, { useRef, useState, useEffect } from "react";
 import Webcam from "react-webcam";
-import * as bodySegmentation from '@tensorflow-models/body-segmentation';
+// import '@tensorflow/tfjs-backend-core';
 import '@tensorflow/tfjs-core';
-import '@tensorflow/tfjs-converter';
 import '@tensorflow/tfjs-backend-webgl';
+import * as bodySegmentation from '@tensorflow-models/body-segmentation';
+// import '@tensorflow/tfjs-converter';
 import '@mediapipe/selfie_segmentation';
 import './App.css';
 
 function App() {
 
     const webcamRef = useRef(null);
-    const canvasRef2 = useRef(null);
+    const canvasRef = useRef(null);
+
+    // const backgroundImage = new Image();
+    // backgroundImage.src = "../src/jungle-1807476_640.jpg";
 
     useEffect(() => {
         const runModel = async () => {
             const model = bodySegmentation.SupportedModels.MediaPipeSelfieSegmentation;
-            console.log("model loaded")
+            console.log("model loaded");
 
 
             const segmenterConfig = {
@@ -24,6 +28,7 @@ function App() {
                 modelType: 'general' // or 'landscape'
             };
             const segmenter = await bodySegmentation.createSegmenter(model, segmenterConfig);
+            // console.log("segmenter created");
 
             const myInterval = setInterval(() => {
                 const detect = async (model) => {
@@ -44,48 +49,58 @@ function App() {
                         webcamRef.current.video.height = videoHeight;
 
                         // Set canvas height and width
-                        canvasRef2.current.width = videoWidth;
-                        canvasRef2.current.height = videoHeight;
+                        canvasRef.current.width = videoWidth;
+                        canvasRef.current.height = videoHeight;
 
                         const segmentationConfig = { flipHorizontal: false };
                         const people = await segmenter.segmentPeople(video, segmentationConfig);
-                        // console.log(people);
+                        // console.log("people created");
 
-                        const canvas2 = document.getElementById("canvas2");
-                        const ctx2 = canvasRef2.current.getContext("2d");
-
-
-                        const foregroundColor = { r: 0, g: 0, b: 0, a: 0 };
-                        const backgroundColor = { r: 0, g: 0, b: 0, a: 255 };
-                        const drawContour = false;
-                        const foregroundThreshold = 0.5;
-                        const backgroundDarkeningMask = await bodySegmentation.toBinaryMask(people, foregroundColor, backgroundColor, drawContour, foregroundThreshold);
-                        const opacity = 0.7;
-                        const maskBlurAmount = 1; // Number of pixels to blur by.
-
+                        const canvas = document.getElementById("canvas");
+                        const ctx = canvasRef.current.getContext("2d");
                         const image = document.getElementById("source");
 
-                        image.addEventListener("load", (e) => {
-                            ctx2.drawImage(image, 0, 0, 640, 480);
-                        });
+                        // const foregroundColor = { r: 0, g: 0, b: 0, a: 0 };
+                        // const backgroundColor = { r: 255, g: 255, b: 255, a: 255 };
+                        // const drawContour = false;
+                        // const foregroundThreshold = 0.2;
+                        // const backgroundDarkeningMask = await bodySegmentation.toBinaryMask(people, foregroundColor, backgroundColor, drawContour, foregroundThreshold);
+                        // const opacity = 1;
+                        // const maskBlurAmount = 0; // Number of pixels to blur by.
+
+                        // await bodySegmentation.drawMask(canvas, video, backgroundDarkeningMask, opacity, maskBlurAmount);
 
 
-                        requestAnimationFrame(async () => {
-                            // ctx2.drawImage(backgroundImage, 0, 0, 640, 480);
-                            const people2 = await bodySegmentation.drawMask(canvas2, video, backgroundDarkeningMask, opacity, maskBlurAmount);
-                        });
+                        if (people.length > 0) {
+                            const personMask = people[0].mask;
+                            const personMaskCanvas = await personMask.toCanvasImageSource();
+
+                            // Draw the person's mask on the canvas
+                            ctx.drawImage(video, 0, 0, 640, 480);
+
+                            // // Draw the person's mask on the canvas with a white color
+                            ctx.globalCompositeOperation = 'destination-in';
+                            ctx.drawImage(personMaskCanvas, 0, 0, 640, 480);
+                            ctx.globalCompositeOperation = 'destination-over';
+                            ctx.drawImage(image, 0, 0, 640, 480);
+                            ctx.globalCompositeOperation = 'source-over'; // Reset composite operation
+                        }
+
                     }
                 };
                 detect(model)
-            }, 500);
+            }, 32);
             return () => clearInterval(myInterval)
         }
+
         runModel();
+
     }, [])
 
 
     return (
         <div className="App">
+            <div className="bg_image"></div>
             <Webcam
                 className="web"
                 ref={webcamRef}
@@ -105,8 +120,8 @@ function App() {
                 }}
             />
             <canvas
-                ref={canvasRef2}
-                id="canvas2"
+                ref={canvasRef}
+                id="canvas"
                 // mirrored={true}
                 style={{
                     position: "absolute",
@@ -121,7 +136,9 @@ function App() {
                     height: 480,
                 }}
             />
-            <img id="source" src={require("./keith-misner-h0Vxgz5tyXA-unsplash.jpg")} width="300" height="227" />
+            <div style={{ display: "none" }}>
+                <img id="source" src={require("./jungle-1807476_640.jpg")} />
+            </div>
         </div>
     );
 }

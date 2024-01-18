@@ -23,6 +23,7 @@ function App(props) {
   const canvasRef = useRef(null);
   const canvasRef2 = useRef(null);
   const canvasRefSec = useRef(null);
+  const canvasRefInv = useRef(null);
 
   const numArray = props.array;
   const [referencia, setReferencia] = useState(randomElement(numArray));
@@ -97,41 +98,21 @@ function App(props) {
             canvasRefSec.current.width = videoWidth;
             canvasRefSec.current.height = videoHeight;
 
+            canvasRefInv.current.width = videoWidth;
+            canvasRefInv.current.height = videoHeight;
+
             const canvas = document.getElementById("canvas");
             const canvasSec = document.getElementById("canvasSec");
+            const canvasInv = document.getElementById("canvasSec");
             const canvas2 = document.getElementById("canvas2");
 
             // Draw Detection Zone
             const ctx = canvasRef.current.getContext("2d");
             const ctxSec = canvasRefSec.current.getContext("2d");
+            const ctxInv = canvasRefInv.current.getContext("2d");
             const ctx2 = canvasRef2.current.getContext("2d");
 
-            // ctx.drawImage(video, x, y, width, height, 0, 0, 640, 480);
-
             const segmentationConfig = { flipHorizontal: false };
-            // const people = await segmenter.segmentPeople(canvas, segmentationConfig);
-
-            // const foregroundColor = { r: 0, g: 0, b: 0, a: 0 };
-            // const backgroundColor = { r: 255, g: 255, b: 255, a: 255 };
-            // const drawContour = true;
-            // const foregroundThreshold = 0.2;
-            // const backgroundDarkeningMask = await bodySegmentation.toBinaryMask(people, foregroundColor, backgroundColor, drawContour, foregroundThreshold);
-            // const opacity = 0.9;
-            // const maskBlurAmount = 0; // Number of pixels to blur by.
-
-            // await bodySegmentation.drawMask(canvasSec, canvas, backgroundDarkeningMask, opacity, maskBlurAmount);
-
-          //   if (people.length > 0) {
-          //     const personMask = people[0].mask;
-          //     const personMaskCanvas = await personMask.toCanvasImageSource();
-          //     ctxSec.drawImage(canvas, 0, 0, 640, 480);
-          //     ctxSec.globalCompositeOperation = 'destination-in';
-          //     ctxSec.drawImage(personMaskCanvas, 0, 0, 640, 480);
-          //     ctxSec.globalCompositeOperation = 'destination-over';
-          //     ctxSec.fillStyle = 'rgba(255, 255, 255, 0.8)';
-          //     ctxSec.fillRect(0, 0, 640, 480);
-          //     ctxSec.globalCompositeOperation = 'source-over';
-          // }
 
             const image = document.getElementById("source");
 
@@ -159,7 +140,7 @@ function App(props) {
               ctxSec.globalCompositeOperation = 'destination-in';
               ctxSec.drawImage(personMaskCanvas_bg, 0, 0, 640, 480);
               ctxSec.globalCompositeOperation = 'destination-over';
-              ctxSec.fillStyle = 'rgba(240, 240, 240, 0.7)';
+              ctxSec.fillStyle = 'rgba(240, 240, 240, 0.8)';
               // ctxSec.fillStyle = 'rgba(220, 230, 255, 0.8)';
               // ctxSec.fillStyle = 'rgba(220, 255, 230, 0.8)';
               // ctxSec.fillStyle = 'rgba(200, 255, 200, 0.8)';
@@ -167,7 +148,19 @@ function App(props) {
               ctxSec.globalCompositeOperation = 'source-over';
 
               ctx.drawImage(canvasSec, x, y, width, height, 0, 0, 640, 480);
-          }
+
+              // const imageData = ctx.getImageData(0, 0, 640, 480);
+              // const data = imageData.data;
+
+              // for (let i = 0; i < data.length; i += 4) {
+              //   const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+              //   data[i] = avg;
+              //   data[i + 1] = avg;
+              //   data[i + 2] = avg;
+              // }
+
+              // ctxInv.putImageData(imageData, 0, 0);
+            }
 
             // Make Detections
             const img = tf.browser.fromPixels(canvas)
@@ -239,6 +232,9 @@ function App(props) {
     timer > 0 && start && setTimeout(() => setTimer(timer - 1), 1000);
   }, [timer])
 
+
+
+
   return (
     <div className="App">
 
@@ -283,7 +279,24 @@ function App(props) {
         ref={canvasRef}
         id="canvas"
         style={{
-          visibility: "hidden",
+          display: "none",
+          position: "absolute",
+          marginLeft: "auto",
+          marginRight: "auto",
+          left: -500,
+          right: 0,
+          textAlign: "center",
+          zindex: 8,
+          width: 640,
+          height: 480,
+        }}
+      />
+
+      <canvas
+        ref={canvasRefInv}
+        id="canvasInv"
+        style={{
+          // display: "none",
           position: "absolute",
           marginLeft: "auto",
           marginRight: "auto",
@@ -300,7 +313,7 @@ function App(props) {
         ref={canvasRefSec}
         id="canvasSec"
         style={{
-          visibility: "hidden",
+          display: "none",
           position: "absolute",
           marginLeft: "auto",
           marginRight: "auto",
